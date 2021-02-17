@@ -85,24 +85,24 @@ libxfce4mixer_la_CFLAGS = 						\
 
 if ALSA_BACKEND
 libxfce4mixer_la_CFLAGS +=						\
-	-Ialsa								\
+	-I$(srcdir)/alsa								\
         $(ALSA_CFLAGS)
 endif
 
 if PULSE_BACKEND
 libxfce4mixer_la_CFLAGS +=						\
-	-Ipulse								\
+	-I$(srcdir)/pulse								\
         $(PULSE_CFLAGS)
 endif
 
 if OSS_BACKEND
 libxfce4mixer_la_CFLAGS +=                                              \
-        -Ioss
+        -I$(srcdir)/oss
 endif
 
 if SNDIO_BACKEND
 libxfce4mixer_la_CFLAGS +=                                              \
-        -Isndio
+        -I$(srcdir)/sndio
 endif
 libxfce4mixer_la_LDFLAGS =						\
 	-no-undefined

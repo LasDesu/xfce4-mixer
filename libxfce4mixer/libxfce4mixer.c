@@ -52,7 +52,8 @@
 
 static void     _xfce_mixer_init_mixer       (gpointer    data,
                                               gpointer    user_data);
-static void     _xfce_mixer_destroy_mixer    (GstMixer   *mixer);
+static void     _xfce_mixer_destroy_mixer    (gpointer    data,
+                                              gpointer user_data);
 
 
 
@@ -451,8 +452,11 @@ _xfce_mixer_init_mixer (gpointer data,
 
 
 static void
-_xfce_mixer_destroy_mixer (GstMixer *mixer)
+_xfce_mixer_destroy_mixer (gpointer data,
+                           gpointer user_data)
 {
+  GstMixer *mixer = GST_MIXER (data);
+
   gst_element_set_state (GST_ELEMENT (mixer), GST_STATE_NULL);
   gst_object_unref (GST_OBJECT (mixer));
 }

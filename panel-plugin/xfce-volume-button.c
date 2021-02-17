@@ -624,9 +624,14 @@ xfce_volume_button_popup_dock (XfceVolumeButton *button)
   GtkWidget       *button_widget = GTK_WIDGET (button);
   GtkOrientation   orientation;
   GtkRequisition   dock_requisition;
+#if GTK_CHECK_VERSION(3, 22, 0)
+  GdkDisplay      *display;
+  GdkMonitor      *monitor;
+#else
   GdkScreen       *screen;
-  GdkRectangle     monitor;
-  gint             monitor_num;
+  gint             monitor;
+#endif
+  GdkRectangle     monitor_rect;
   gint             window_x;
   gint             window_y;
   GdkWindow       *window;
@@ -669,10 +674,16 @@ xfce_volume_button_popup_dock (XfceVolumeButton *button)
   y += button_allocation.y;
 
   /* Determine the geometry of the monitor containing the window containing the button */
-  screen = gtk_widget_get_screen (button_widget);
   window = gtk_widget_get_window (GTK_WIDGET (button));
-  monitor_num = gdk_screen_get_monitor_at_window (screen, window);
-  gdk_screen_get_monitor_geometry (screen, monitor_num, &monitor);
+#if GTK_CHECK_VERSION(3, 22, 0)
+  display = gtk_widget_get_display (button_widget);
+  monitor = gdk_display_get_monitor_at_window (display, window);
+  gdk_monitor_get_geometry (monitor, &monitor_rect);
+#else
+  screen = gtk_widget_get_screen (button_widget);
+  monitor = gdk_screen_get_monitor_at_window (screen, window);
+  gdk_screen_get_monitor_geometry (screen, monitor, &monitor_rect);
+#endif
 
   /* Determine the position of the window containing the button */
   if (xfce_screen_position_is_top (button->screen_position))
@@ -692,9 +703,9 @@ xfce_volume_button_popup_dock (XfceVolumeButton *button)
       gdk_window_get_root_origin (window, &window_x, &window_y);
 
       if (button->screen_position == XFCE_SCREEN_POSITION_FLOATING_V)
-        position = (window_x < (monitor.x + monitor.width / 2)) ? GTK_POS_RIGHT : GTK_POS_LEFT;
+        position = (window_x < (monitor_rect.x + monitor_rect.width / 2)) ? GTK_POS_RIGHT : GTK_POS_LEFT;
       else
-        position = (window_y < (monitor.y + monitor.height / 2)) ? GTK_POS_BOTTOM : GTK_POS_TOP;
+        position = (window_y < (monitor_rect.y + monitor_rect.height / 2)) ? GTK_POS_BOTTOM : GTK_POS_TOP;
     }
 
   /* Place the dock centered on the correct edge of the button */
@@ -721,14 +732,14 @@ xfce_volume_button_popup_dock (XfceVolumeButton *button)
     }
 
   /* Ensure the dock remains on the monitor */
-  if (x > monitor.x + monitor.width - dock_requisition.width)
-    x = monitor.x + monitor.width - dock_requisition.width;
-  if (x < monitor.x)
-    x = monitor.x;
-  if (y > monitor.y + monitor.height - dock_requisition.height)
-    y = monitor.y + monitor.height - dock_requisition.height;
-  if (y < monitor.y)
-    y = monitor.y;
+  if (x > monitor_rect.x + monitor_rect.width - dock_requisition.width)
+    x = monitor_rect.x + monitor_rect.width - dock_requisition.width;
+  if (x < monitor_rect.x)
+    x = monitor_rect.x;
+  if (y > monitor_rect.y + monitor_rect.height - dock_requisition.height)
+    y = monitor_rect.y + monitor_rect.height - dock_requisition.height;
+  if (y < monitor_rect.y)
+    y = monitor_rect.y;
 
   /* Position the dock */
   gtk_window_move (GTK_WINDOW (button->dock), x, y);

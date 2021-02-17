@@ -38,7 +38,7 @@ struct _GstMixerAlsaOptions
 
 struct _GstMixerAlsaOptionsClass
 {
-  GstMixerAlsaTrack parent;
+  GstMixerAlsaTrackClass parent;
 };
 
 GType                 gst_mixer_alsa_options_get_type (void);
